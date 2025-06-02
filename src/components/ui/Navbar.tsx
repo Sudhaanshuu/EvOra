@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, LogOut } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, Shield } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
   const { user, signOut } = useAuth();
 
@@ -25,6 +27,21 @@ const Navbar: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+        setIsAdmin(!!data);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
+
+  useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
 
@@ -40,8 +57,6 @@ const Navbar: React.FC = () => {
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
     { name: 'Features', path: '/features' },
-    { name: 'Posts', path: '/posts' },
-    { name: 'Internships', path: '/internships' },
   ];
 
   return (
@@ -60,7 +75,7 @@ const Navbar: React.FC = () => {
               <span className="font-bold text-lg">E</span>
             </div>
             <span className={`ml-2 font-bold text-xl ${scrolled || location.pathname !== '/' ? 'text-gray-800' : 'text-white'}`}>
-              ExamPortal
+              EvOra
             </span>
           </Link>
 
@@ -75,13 +90,7 @@ const Navbar: React.FC = () => {
                     scrolled || location.pathname !== '/'
                       ? 'text-gray-600 hover:text-indigo-600'
                       : 'text-gray-100 hover:text-white'
-                  } transition-colors duration-200 ${
-                    location.pathname === link.path 
-                      ? scrolled || location.pathname !== '/' 
-                        ? 'text-indigo-600 font-medium' 
-                        : 'text-white font-medium'
-                      : ''
-                  }`}
+                  } transition-colors duration-200`}
                 >
                   {link.name}
                 </Link>
@@ -117,6 +126,29 @@ const Navbar: React.FC = () => {
                       >
                         Dashboard
                       </Link>
+                      {isAdmin && (
+                        <>
+                          <Link
+                            to="/admin"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                          >
+                            <Shield size={16} className="mr-2" />
+                            Admin Dashboard
+                          </Link>
+                          <Link
+                            to="/admin/create-post"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                          >
+                            Create Post
+                          </Link>
+                          <Link
+                            to="/admin/create-internship"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                          >
+                            Create Internship
+                          </Link>
+                        </>
+                      )}
                       <Link
                         to="/profile"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
@@ -185,11 +217,7 @@ const Navbar: React.FC = () => {
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`px-4 py-2 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 ${
-                      location.pathname === link.path 
-                        ? 'bg-indigo-50 text-indigo-600 font-medium' 
-                        : ''
-                    }`}
+                    className="px-4 py-2 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
                   >
                     {link.name}
                   </Link>
@@ -203,6 +231,29 @@ const Navbar: React.FC = () => {
                     >
                       Dashboard
                     </Link>
+                    {isAdmin && (
+                      <>
+                        <Link
+                          to="/admin"
+                          className="flex items-center px-4 py-2 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+                        >
+                          <Shield size={16} className="mr-2" />
+                          Admin Dashboard
+                        </Link>
+                        <Link
+                          to="/admin/create-post"
+                          className="px-4 py-2 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+                        >
+                          Create Post
+                        </Link>
+                        <Link
+                          to="/admin/create-internship"
+                          className="px-4 py-2 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+                        >
+                          Create Internship
+                        </Link>
+                      </>
+                    )}
                     <Link
                       to="/profile"
                       className="px-4 py-2 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
