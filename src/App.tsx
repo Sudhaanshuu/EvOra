@@ -10,14 +10,17 @@ import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Posts from './pages/Posts';
 import Internships from './pages/Internships';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import CreatePost from './pages/admin/CreatePost';
+import CreateInternship from './pages/admin/CreateInternship';
 import { Helmet } from 'react-helmet';
 
 function App() {
   return (
     <BrowserRouter>
       <Helmet>
-        <title>ExamPortal - Ace Your Placements & Technical Assessments</title>
-        <meta name="description" content="Practice, prepare, and perform with our comprehensive platform for campus placements and technical assessments." />
+        <title>EvOra - A fresh take on next-gen assessments</title>
+        <meta name="description" content="EvOra - No shortcuts, only success. Practice, prepare, and perform with our comprehensive platform for assessments." />
       </Helmet>
       <AuthProvider>
         <Routes>
@@ -29,6 +32,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/posts" element={<Posts />} />
           <Route path="/internships" element={<Internships />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/create-post" element={<CreatePost />} />
+          <Route path="/admin/create-internship" element={<CreateInternship />} />
         </Routes>
         <Toaster 
           position="top-right"
