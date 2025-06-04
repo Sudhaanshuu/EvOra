@@ -28,17 +28,28 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (user) {
-        const { data } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', user.id)
+      if (user?.email) {
+        const { data, error } = await supabase
+          .from('admin_emails')
+          .select('*')
+          .eq('email', user.email)
           .single();
+
+        if (error) {
+          console.error('Error checking admin status:', error);
+          setIsAdmin(false);
+          return;
+        }
+
         setIsAdmin(!!data);
       }
     };
 
-    checkAdminStatus();
+    if (user) {
+      checkAdminStatus();
+    } else {
+      setIsAdmin(false);
+    }
   }, [user]);
 
   useEffect(() => {
