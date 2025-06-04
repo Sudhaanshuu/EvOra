@@ -12,11 +12,11 @@ const AdminDashboard: React.FC = () => {
 
   React.useEffect(() => {
     const checkAdminStatus = async () => {
-      if (user) {
+      if (user?.email) {
         const { data, error } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', user.id)
+          .from('admin_emails')
+          .select('email')
+          .eq('email', user.email)
           .single();
         
         if (error) {
