@@ -12,25 +12,37 @@ const AdminDashboard: React.FC = () => {
 
   React.useEffect(() => {
     const checkAdminStatus = async () => {
-      if (user?.email) {
+      if (!user?.email) {
+        setIsAdmin(false);
+        return;
+      }
+
+      try {
+        console.log('AdminDashboard: Checking admin status for:', user.email);
+        
         const { data, error } = await supabase
           .from('admin_emails')
           .select('email')
           .eq('email', user.email)
-          .single();
+          .maybeSingle();
         
         if (error) {
-          console.error('Error checking admin status:', error);
+          console.error('AdminDashboard: Error checking admin status:', error);
           setIsAdmin(false);
           return;
         }
         
-        setIsAdmin(!!data);
+        const adminStatus = !!data;
+        console.log('AdminDashboard: Admin status result:', adminStatus, 'Data:', data);
+        setIsAdmin(adminStatus);
+      } catch (error) {
+        console.error('AdminDashboard: Exception checking admin status:', error);
+        setIsAdmin(false);
       }
     };
 
     checkAdminStatus();
-  }, [user]);
+  }, [user?.email]);
 
   if (loading || isAdmin === null) {
     return (
