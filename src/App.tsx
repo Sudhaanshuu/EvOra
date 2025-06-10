@@ -13,6 +13,7 @@ import Internships from './pages/Internships';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CreatePost from './pages/admin/CreatePost';
 import CreateInternship from './pages/admin/CreateInternship';
+import AdminDebugPage from './pages/AdminDebug';
 import { Helmet } from 'react-helmet';
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/create-post" element={<CreatePost />} />
           <Route path="/admin/create-internship" element={<CreateInternship />} />
+          <Route path="/admin-debug" element={<AdminDebugPage />} />
         </Routes>
         <Toaster 
           position="top-right"
