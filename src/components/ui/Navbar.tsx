@@ -10,6 +10,7 @@ const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminCheckLoading, setAdminCheckLoading] = useState(true);
   const location = useLocation();
   const { user, signOut } = useAuth();
 
@@ -28,29 +29,40 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (user?.email) {
+      if (!user?.email) {
+        setIsAdmin(false);
+        setAdminCheckLoading(false);
+        return;
+      }
+
+      try {
+        console.log('Checking admin status for email:', user.email);
+        
         const { data, error } = await supabase
           .from('admin_emails')
-          .select('*')
+          .select('email')
           .eq('email', user.email)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error checking admin status:', error);
           setIsAdmin(false);
-          return;
+        } else {
+          const adminStatus = !!data;
+          console.log('Admin status result:', adminStatus, 'Data:', data);
+          setIsAdmin(adminStatus);
         }
-
-        setIsAdmin(!!data);
+      } catch (error) {
+        console.error('Exception checking admin status:', error);
+        setIsAdmin(false);
+      } finally {
+        setAdminCheckLoading(false);
       }
     };
 
-    if (user) {
-      checkAdminStatus();
-    } else {
-      setIsAdmin(false);
-    }
-  }, [user]);
+    setAdminCheckLoading(true);
+    checkAdminStatus();
+  }, [user?.email]);
 
   useEffect(() => {
     setIsOpen(false);
@@ -64,11 +76,22 @@ const Navbar: React.FC = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
+  const handleSignOut = async () => {
+    setIsAdmin(false);
+    setAdminCheckLoading(false);
+    await signOut();
+  };
+
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'About', path: '/about' },
-    { name: 'Features', path: '/features' },
+    { name: 'Posts', path: '/posts' },
+    { name: 'Internships', path: '/internships' },
   ];
+
+  // Debug logging
+  console.log('Current user:', user?.email);
+  console.log('Is admin:', isAdmin);
+  console.log('Admin check loading:', adminCheckLoading);
 
   return (
     <nav
@@ -137,7 +160,7 @@ const Navbar: React.FC = () => {
                       >
                         Dashboard
                       </Link>
-                      {isAdmin && (
+                      {!adminCheckLoading && isAdmin && (
                         <>
                           <Link
                             to="/admin"
@@ -167,7 +190,7 @@ const Navbar: React.FC = () => {
                         Profile Settings
                       </Link>
                       <button
-                        onClick={signOut}
+                        onClick={handleSignOut}
                         className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
                         <LogOut size={16} className="mr-2" />
@@ -242,7 +265,7 @@ const Navbar: React.FC = () => {
                     >
                       Dashboard
                     </Link>
-                    {isAdmin && (
+                    {!adminCheckLoading && isAdmin && (
                       <>
                         <Link
                           to="/admin"
@@ -272,7 +295,7 @@ const Navbar: React.FC = () => {
                       Profile Settings
                     </Link>
                     <button
-                      onClick={signOut}
+                      onClick={handleSignOut}
                       className="flex items-center px-4 py-2 text-red-600 hover:bg-red-50 text-left"
                     >
                       <LogOut size={16} className="mr-2" />
